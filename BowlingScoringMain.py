@@ -41,6 +41,10 @@ PIN_DOWN_VALUE = False
 EMPTY_FRAME = [0, 0]
 PIN_DISPLAY_EDGE_LENGTH = 4
 PIN_LABELS = [x for x in range(PIN_LOWER_BOUND, PIN_UPPER_BOUND + 1)]
+PIN_RACK_LABELS = []
+for x in range(PIN_LOWER_BOUND, PIN_UPPER_BOUND):
+    PIN_RACK_LABELS.append(str(x))
+PIN_RACK_LABELS.append("X")
 
 from FrameClass import Frame, TenthFrame
 from ScoreSheetClass import ScoreSheet
@@ -81,19 +85,29 @@ def getPinsInput(pinRack, firstBowl, thirdBowl=False):
             pinsDownedInput = input(SHOT_SCORE_PROMPT_LINE_ONE_B3 +
                                     "\n\t" + SHOT_SCORE_PROMPT_LINE_TWO)
 
-        # loop through the string and convert into a list (account for pin 10 as 'X')
-        for char in pinsDownedInput:
-            if char == 'X':
-                pinsDownList.append(int(PIN_UPPER_BOUND))
-            else:
-                pinsDownList.append(int(char))
+        if pinsDownedInput == "":
+            pinError = False
 
-        for pin in pinsDownList:
-            if pin not in PIN_LABELS:
-                print(ERROR_INVALID_ENTRY)
-            else:
-                pinRack.setPin(pin, PIN_DOWN_VALUE)
-                pinError = False
+        elif pinsDownedInput in PIN_RACK_LABELS:
+            # loop through the string and convert into a list (account for pin 10 as 'X')
+            for char in pinsDownedInput:
+                if char == 'X':
+                    pinsDownList.append(int(PIN_UPPER_BOUND))
+                elif char in PIN_LABELS:
+                    try:
+                        pinsDownList.append(int(char))
+                    except ValueError:
+                        print(ERROR_INVALID_ENTRY)
+                    else:
+                        for pin in pinsDownList:
+                            if pin not in PIN_LABELS:
+                                print(ERROR_INVALID_ENTRY)
+                            else:
+                                pinRack.setPin(pin, PIN_DOWN_VALUE)
+                                pinError = False
+
+        else:
+            print(ERROR_INVALID_ENTRY)
 
     return
 
